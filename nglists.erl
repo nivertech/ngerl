@@ -3,7 +3,7 @@
 %%% license: BSD
 
 -module(nglists).
--export([count/2, deepmap/2, drop/2, init/1, pos/2, uniq/1]).
+-export([count/2, deepmap/2, drop/2, init/1, pos/2, transpose/1, uniq/1]).
 
 -import(lists, [all/2, append/1, duplicate/2, flatten/1, foldl/3, foreach/2,
                 map/2, nth/2, nthtail/2, reverse/1, seq/2, sum/1, zip/2,
@@ -41,6 +41,18 @@ pos(E, L)                    -> pos(E, L, 1).
 pos(_, [], _)                -> 0;
 pos(E, [H|_], I) when E == H -> I;
 pos(E, [_|T], I)             -> pos(E, T, I+1).
+
+
+%% @doc Transpose list L.
+
+transpose(L) ->
+    Len = length(hd(L)),
+    transpose1(L, duplicate(Len, [])).
+transpose1([R|T], Acc) ->
+    NewAcc = zipwith(fun(X, Y) -> Y ++ [X] end, R, Acc),
+    transpose1(T, NewAcc);
+transpose1([], Acc) ->
+    Acc.
 
 
 %% @doc Remove duplicates from list L.
