@@ -3,7 +3,8 @@
 %%% license: BSD
 
 -module(nglists).
--export([count/2, deepmap/2, drop/2, init/1, pos/2, transpose/1, uniq/1]).
+-export([count/2, deepmap/2, drop/2, find_first/2, find_first/3, init/1, pos/2,
+         transpose/1, uniq/1]).
 
 -import(lists, [all/2, append/1, duplicate/2, flatten/1, foldl/3, foreach/2,
                 map/2, nth/2, nthtail/2, reverse/1, seq/2, sum/1, zip/2,
@@ -28,6 +29,24 @@ deepmap(_Fun, [])                -> [].
 drop(N, L) when N > 0 -> nthtail(N, L);
 drop(N, L) when N < 0 -> reverse(nthtail(N * -1, reverse(L)));
 drop(_, L)            -> L.
+
+
+%% @doc Return the first element that satisfies the predicate.
+%% @spec find_first(function(), list()) -> {ok, any()} | false
+
+find_first(Pred, L) ->
+    find_first(Pred, fun() -> false end, L).
+
+%% @doc Return the value of IfNone() if no element satisfies the predicate.
+%% @spec find_first(function(), function(), list()) -> {ok, any()} | any()
+
+find_first(Pred, IfNone, [H|T]) ->
+    case Pred(H) of
+        true -> {ok, H};
+        _    -> find_first(Pred, IfNone, T)
+    end;
+find_first(_Pred, IfNone, []) ->
+    IfNone().
 
 
 %% @doc Drop the last element of a list.
