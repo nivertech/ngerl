@@ -3,8 +3,9 @@
 %%% license: BSD
 
 -module(nglists).
--export([count/2, deepmap/2, drop/2, find_first/2, find_first/3, init/1, pos/2,
-         transpose/1, uniq/1]).
+-export([count/2, deepmap/2, drop/2,
+         find_first/2, find_first/3, find_last/2, find_last/3,
+         init/1, pos/2, transpose/1, uniq/1]).
 
 -import(lists, [all/2, append/1, duplicate/2, flatten/1, foldl/3, foreach/2,
                 map/2, nth/2, nthtail/2, reverse/1, seq/2, sum/1, zip/2,
@@ -47,6 +48,17 @@ find_first(Pred, IfNone, [H|T]) ->
     end;
 find_first(_Pred, IfNone, []) ->
     IfNone().
+
+
+%% @doc Like find_first.
+
+find_last(Pred, L) ->
+    find_last(Pred, fun() -> false end, L).
+
+%% @doc Like find_first.
+
+find_last(Pred, IfNone, L) ->
+    find_first(Pred, IfNone, reverse(L)).
 
 
 %% @doc Drop the last element of a list.
