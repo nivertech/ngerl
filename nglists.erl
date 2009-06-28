@@ -5,11 +5,11 @@
 -module(nglists).
 -export([count/2, deepmap/2, drop/2,
          find_first/2, find_first/3, find_last/2, find_last/3,
-         init/1, pos/2, transpose/1, uniq/1]).
+         init/1, pos/2, transpose/1, uniq/1, shuffle/1, random/1]).
 
 -import(lists, [all/2, append/1, duplicate/2, flatten/1, foldl/3, foreach/2,
-                map/2, nth/2, nthtail/2, reverse/1, seq/2, sum/1, zip/2,
-                zipwith/3]).
+                keysort/2, map/2, nth/2, nthtail/2, reverse/1, seq/2, sum/1, 
+                zip/2, zipwith/3]).
 
 
 %%% @doc  Count the number of list items that satisfy some predicate.
@@ -20,9 +20,9 @@ count(Fun, L) ->
 
 %% @doc Like map, but maintains structure of deep lists.
 
-deepmap(Fun, [H|T]) when list(H) -> [deepmap(Fun, H) | deepmap(Fun, T)];
-deepmap(Fun, [H|T])              -> [Fun(H) | deepmap(Fun,T)];
-deepmap(_Fun, [])                -> [].
+deepmap(Fun, [H|T]) when is_list(H) -> [deepmap(Fun, H) | deepmap(Fun, T)];
+deepmap(Fun, [H|T])                 -> [Fun(H) | deepmap(Fun,T)];
+deepmap(_Fun, [])                   -> [].
 
 
 %% @doc Drop N elements from list L.
@@ -74,7 +74,7 @@ pos(E, [H|_], I) when E == H -> I;
 pos(E, [_|T], I)             -> pos(E, T, I+1).
 
 
-%% @doc Transpose list L.
+%% @doc Transpose list.
 
 transpose(L) ->
     Len = length(hd(L)),
@@ -86,7 +86,23 @@ transpose1([], Acc) ->
     Acc.
 
 
-%% @doc Remove duplicates from list L.
+%% @doc Remove duplicates from list.
 
 uniq([H|T]) -> [H | uniq([Y || Y <- T, Y =/= H])];
 uniq([])    -> [].
+
+
+%% @doc Shuffle list.
+
+%% Knuth shuffle.
+shuffle(L) ->
+    N = length(L) * 10000,
+    Pairs = map(fun(X) -> {random:uniform(N), X} end, L),
+    Sorted = keysort(1, Pairs),
+    map(fun({_, X}) -> X end, Sorted).
+    
+
+%% @doc Return an element from the list picked randomly.
+
+random(L) ->
+    nth(random:uniform(length(L)), L).
